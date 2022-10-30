@@ -40,5 +40,11 @@ public:
 };
 
 // TODO: Derived class VolumeMaterial
+class VolumeMaterial : public StandardMaterial {
+public:
+	VolumeMaterial();
+	~VolumeMaterial();
 
+	void render(Mesh* mesh, Matrix44 model, Camera* camera);
+};
 #endif

@@ -34,13 +34,13 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	mouse_locked = false;
 
 	// OpenGL flags
-	glEnable( GL_CULL_FACE ); //render both sides of every triangle
-	glEnable( GL_DEPTH_TEST ); //check the occlusions using the Z buffer
+	glEnable(GL_CULL_FACE); //render both sides of every triangle
+	glEnable(GL_DEPTH_TEST); //check the occlusions using the Z buffer
 
 	// Create camera
 	camera = new Camera();
 	camera->lookAt(Vector3(5.f, 5.f, 5.f), Vector3(0.f, 0.0f, 0.f), Vector3(0.f, 1.f, 0.f));
-	camera->setPerspective(45.f, window_width/(float)window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
+	camera->setPerspective(45.f, window_width / (float)window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
 
 	{
 		// EXAMPLE OF HOW TO CREATE A SCENE NODE
@@ -54,8 +54,20 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 
 		// TODO: create all the volumes to use in the app
 		// ...
+		/*
+		VolumeNode* volNode = new VolumeNode("Visible node");
+		node->mesh = Mesh::Get("data/meshes/box.ASE.bin");
+		node->model.scale(1, 1, 1);
+		VolumeMaterial* volMat = new VolumeMaterial();
+		node->material = volMat;
+		volMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/normal.fs");
+		node_list.push_back(volNode);
+		*/
+		//Ray setup
+		//camera->eye;
+		//camera->getRayDirection();
 	}
-	
+
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
 }
@@ -79,12 +91,12 @@ void Application::render(void)
 	for (size_t i = 0; i < node_list.size(); i++) {
 		node_list[i]->render(camera);
 
-		if(render_wireframe)
+		if (render_wireframe)
 			node_list[i]->renderWireframe(camera);
 	}
 
 	//Draw the floor grid
-	if(render_debug)
+	if (render_debug)
 		drawGrid();
 }
 

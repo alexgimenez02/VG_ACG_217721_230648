@@ -79,3 +79,32 @@ void WireframeMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 }
+
+VolumeMaterial::VolumeMaterial()
+{
+	color = vec4(1.f, 1.f, 1.f, 1.f);
+	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/flat.fs");
+}
+
+VolumeMaterial::~VolumeMaterial()
+{
+}
+
+void VolumeMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
+{
+	if (shader && mesh)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		//enable shader
+		shader->enable();
+
+		//upload material specific uniforms
+		setUniforms(camera, model);
+
+		//do the draw call
+		mesh->render(GL_TRIANGLES);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+}

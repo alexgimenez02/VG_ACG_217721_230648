@@ -927,7 +927,7 @@ enum ImGuiDir_
     ImGuiDir_COUNT
 };
 
-// User fill ImGuiIO.KeyMap[] array with indices into the ImGuiIO.KeysDown[512] array
+// User fill ImGuiIO.KeyMap[] aray with indices into the ImGuiIO.KeysDown[512] array
 enum ImGuiKey_
 {
     ImGuiKey_Tab,

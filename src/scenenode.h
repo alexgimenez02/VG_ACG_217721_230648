@@ -31,5 +31,14 @@ public:
 };
 
 // TODO: Derived class VolumeNode
+class VolumeNode : public SceneNode {
+public:
+	VolumeNode();
+	VolumeNode(const char* name);
+	~VolumeNode();
 
+	void render(Camera* camera);
+	void renderWireframe(Camera* camera);
+	void renderInMenu();
+};
 #endif
