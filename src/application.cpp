@@ -45,11 +45,11 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	{
 		// EXAMPLE OF HOW TO CREATE A SCENE NODE
 		SceneNode* node = new SceneNode("Visible node");
-		node->mesh = Mesh::Get("data/meshes/sphere.obj.mbin");
+	//	node->mesh = Mesh::Get("data/meshes/sphere.obj.mbin");
 		node->model.scale(1, 1, 1);
 		StandardMaterial* mat = new StandardMaterial();
 		node->material = mat;
-		mat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/normal.fs");
+	//	mat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/normal.fs");
 		node_list.push_back(node);
 
 		// TODO: create all the volumes to use in the app
