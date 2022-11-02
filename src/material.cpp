@@ -16,9 +16,16 @@ StandardMaterial::~StandardMaterial()
 
 void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 {
+	Matrix44 aux_model;
+	aux_model = model;
+	aux_model.inverse();
+
+	// Multiply the camera->eye with the inverse model that we computed
+	// Change the variable sent to the shaderwith the new local camera eye coord
+	shader->setUniform("u_camera_position", camera->eye);
+
 	//upload node uniforms
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	shader->setUniform("u_camera_position", camera->eye);
 	shader->setUniform("u_model", model);
 	shader->setUniform("u_time", Application::instance->time);
 	shader->setUniform("u_color", color);

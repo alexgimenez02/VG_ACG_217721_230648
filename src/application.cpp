@@ -66,6 +66,35 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		//Ray setup
 		//camera->eye;
 		//camera->getRayDirection();
+
+		/*
+		1. new VolumeNode (autoset a cube for the mesh of the class)
+		2. load Volume from dataset
+		3. create Texture from Volume
+		4. create Material from Texture
+		5. set material of the VolumeNode as the material created
+		6. check that this created node is used in the main render call
+		*/
+		VolumeNode* volNode = new VolumeNode("Visible node");
+		Volume* volume = new Volume();
+		volume->loadPVM("data/volumes/CT-Abdomen.pvm");
+		volume->loadPNG("data/volumes/bonsai_16_16.png");
+		Texture* tex = new Texture();
+
+		tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE || GL_REPEAT);
+		StandardMaterial* stdMat = new StandardMaterial();
+		stdMat->texture = tex;
+
+		volNode->material = stdMat;
+		node_list.push_back(volNode);
+
+		// LOAD PIPELINE //
+		// SceneNode (new class?) = autoset mesh as a cube
+		// Volume = load
+		// Texture = create Tex from Volume
+		// Material (new class) = set tex
+		// set the material and model to the SceneNode
+		// set the node to the list of nodes that is called in render()
 	}
 
 	//hide the cursor
