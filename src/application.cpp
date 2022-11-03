@@ -34,69 +34,43 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	mouse_locked = false;
 
 	// OpenGL flags
-	glEnable(GL_CULL_FACE); //render both sides of every triangle
-	glEnable(GL_DEPTH_TEST); //check the occlusions using the Z buffer
+	glEnable( GL_CULL_FACE ); //render both sides of every triangle
+	glEnable( GL_DEPTH_TEST ); //check the occlusions using the Z buffer
 
 	// Create camera
 	camera = new Camera();
 	camera->lookAt(Vector3(5.f, 5.f, 5.f), Vector3(0.f, 0.0f, 0.f), Vector3(0.f, 1.f, 0.f));
-	camera->setPerspective(45.f, window_width / (float)window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
+	camera->setPerspective(45.f, window_width/(float)window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
 
 	{
 		// EXAMPLE OF HOW TO CREATE A SCENE NODE
 		SceneNode* node = new SceneNode("Visible node");
-	//	node->mesh = Mesh::Get("data/meshes/sphere.obj.mbin");
+		node->mesh = Mesh::Get("data/meshes/sphere.obj.mbin");
 		node->model.scale(1, 1, 1);
 		StandardMaterial* mat = new StandardMaterial();
 		node->material = mat;
-	//	mat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/normal.fs");
-		node_list.push_back(node);
+		mat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/normal.fs");
+		//node_list.push_back(node);
 
 		// TODO: create all the volumes to use in the app
 		// ...
-		/*
-		VolumeNode* volNode = new VolumeNode("Visible node");
-		node->mesh = Mesh::Get("data/meshes/box.ASE.bin");
-		node->model.scale(1, 1, 1);
-		VolumeMaterial* volMat = new VolumeMaterial();
-		node->material = volMat;
-		volMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/normal.fs");
-		node_list.push_back(volNode);
-		*/
-		//Ray setup
-		//camera->eye;
-		//camera->getRayDirection();
-
-		/*
-		1. new VolumeNode (autoset a cube for the mesh of the class)
-		2. load Volume from dataset
-		3. create Texture from Volume
-		4. create Material from Texture
-		5. set material of the VolumeNode as the material created
-		6. check that this created node is used in the main render call
-		*/
-		VolumeNode* volNode = new VolumeNode("Visible node");
+		SceneNode* volNode = new SceneNode("Visible node");
 		Volume* volume = new Volume();
-		volume->loadPVM("data/volumes/CT-Abdomen.pvm");
-		volume->loadPNG("data/volumes/bonsai_16_16.png");
+		volume->loadPVM("data/volumes/CT-Abdomen.PVM");
+		volNode->mesh = new Mesh();
+		volNode->mesh->createCube();
+		//volNode->model.scale(volume->widthSpacing, volume->heightSpacing, volume->depthSpacing);
 		Texture* tex = new Texture();
 
-		tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE || GL_REPEAT);
+		tex->create3DFromVolume(volume);
 		StandardMaterial* stdMat = new StandardMaterial();
+		stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs");
 		stdMat->texture = tex;
 
 		volNode->material = stdMat;
 		node_list.push_back(volNode);
-
-		// LOAD PIPELINE //
-		// SceneNode (new class?) = autoset mesh as a cube
-		// Volume = load
-		// Texture = create Tex from Volume
-		// Material (new class) = set tex
-		// set the material and model to the SceneNode
-		// set the node to the list of nodes that is called in render()
 	}
-
+	
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
 }
@@ -120,12 +94,12 @@ void Application::render(void)
 	for (size_t i = 0; i < node_list.size(); i++) {
 		node_list[i]->render(camera);
 
-		if (render_wireframe)
+		if(render_wireframe)
 			node_list[i]->renderWireframe(camera);
 	}
 
 	//Draw the floor grid
-	if (render_debug)
+	if(render_debug)
 		drawGrid();
 }
 
