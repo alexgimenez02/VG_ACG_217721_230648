@@ -22,7 +22,7 @@ void main() {
 	//for loop
 	for (int i = 0; i < 100000; i++) {
 		//2. Get information from 3D texture
-		float d = texture3D(u_texture, sample_pos).x;
+		float d = texture3D(u_texture, (sample_position + 1.0)/2.0).x;
 		//3. Obtain color from density obtained
 		vec4 sample_color = vec4(d, 1-d, 0, d*d);
 		//4. Composition of final_color
