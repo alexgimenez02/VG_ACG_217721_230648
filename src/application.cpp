@@ -63,13 +63,13 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		//volNode->model.scale(volume->widthSpacing, volume->heightSpacing, volume->depthSpacing);
 		Texture* tex = new Texture();
 
-		tex->create3DFromVolume(volume);
+		tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE);
 		StandardMaterial* stdMat = new StandardMaterial();
 		stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs");
 		stdMat->texture = tex;
-		//stdMat->color = Vector4(0, 0, 0, 1);
 
 		volNode->material = stdMat;
+		volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
 		node_list.push_back(volNode);
 	}
 	
