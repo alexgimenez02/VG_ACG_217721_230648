@@ -56,9 +56,10 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		// ...
 		SceneNode* volNode = new SceneNode("Visible node");
 		Volume* volume = new Volume();
-		volume->loadPVM("data/volumes/CT-Abdomen.PVM");
 		volNode->mesh = new Mesh();
 		volNode->mesh->createCube();
+		volume->loadPVM("data/volumes/CT-Abdomen.pvm");
+		//volume->loadPNG("data/volumes/teapot_16_16.png");
 		//volNode->model.scale(volume->widthSpacing, volume->heightSpacing, volume->depthSpacing);
 		Texture* tex = new Texture();
 
@@ -66,6 +67,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		StandardMaterial* stdMat = new StandardMaterial();
 		stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs");
 		stdMat->texture = tex;
+		//stdMat->color = Vector4(0, 0, 0, 1);
 
 		volNode->material = stdMat;
 		node_list.push_back(volNode);
