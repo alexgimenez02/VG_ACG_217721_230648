@@ -7,6 +7,7 @@
 #include "mesh.h"
 #include "camera.h"
 #include "material.h"
+#include "volume.h"
 
 class Light;
 
@@ -25,9 +26,12 @@ public:
 	Mesh* mesh = NULL;
 	Matrix44 model;
 
+	
+
 	virtual void render(Camera* camera);
 	virtual void renderWireframe(Camera* camera);
 	virtual void renderInMenu();
+	void swapVolume(int volume_selected);
 };
 
 // TODO: Derived class VolumeNode

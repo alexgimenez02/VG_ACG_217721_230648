@@ -27,6 +27,10 @@ public:
 	long frame;
 	float time;
 	float elapsed_time;
+	float brightness;
+	float ray_step;
+	unsigned int volume_selected;
+	unsigned int prev_volume;
 	int fps;
 	bool must_exit;
 	bool render_debug;

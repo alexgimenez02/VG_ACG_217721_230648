@@ -29,6 +29,8 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 
 	fps = 0;
 	frame = 0;
+	volume_selected = 0;
+	prev_volume = 0;
 	time = 0.0f;
 	elapsed_time = 0.0f;
 	mouse_locked = false;
@@ -42,6 +44,8 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	camera->lookAt(Vector3(5.f, 5.f, 5.f), Vector3(0.f, 0.0f, 0.f), Vector3(0.f, 1.f, 0.f));
 	camera->setPerspective(45.f, window_width/(float)window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
 
+	brightness = 1.0f;
+	ray_step = 0.05f;
 	{
 		// EXAMPLE OF HOW TO CREATE A SCENE NODE
 		SceneNode* node = new SceneNode("Visible node");
@@ -67,6 +71,8 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		StandardMaterial* stdMat = new StandardMaterial();
 		stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs");
 		stdMat->texture = tex;
+		stdMat->brightness = brightness;
+		stdMat->ray_step = ray_step;
 
 		volNode->material = stdMat;
 		volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
@@ -135,6 +141,14 @@ void Application::update(double seconds_elapsed)
 	// to navigate with the mouse fixed in the middle
 	if (mouse_locked)
 		Input::centerMouse();
+
+	for (auto& node : node_list) {
+		node->material->brightness = brightness;
+		node->material->ray_step = ray_step;
+		if (volume_selected != prev_volume) 
+			node->swapVolume(volume_selected);
+	}
+	prev_volume = volume_selected;
 }
 
 // Keyboard event handler (sync input)
@@ -238,6 +252,12 @@ void Application::renderInMenu() {
 		}
 		ImGui::TreePop();
 	}
+
+	ImGui::DragFloat("Brightness", &brightness, 0.1f, 0.0f, 15.0f);
+	ImGui::DragFloat("Step vector", &ray_step, 0.01f,0.1f,1.15f);
+
+	bool changed = false;
+	changed |= ImGui::Combo("Volume", (int*)&volume_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0BRAIN\0FOOT\0TEAPOT");
 
 	ImGui::Checkbox("Render debug", &render_debug);
 	ImGui::Checkbox("Wireframe", &render_wireframe);

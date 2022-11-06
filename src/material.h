@@ -13,6 +13,8 @@ public:
 	Shader* shader = NULL;
 	Texture* texture = NULL;
 	vec4 color;
+	float brightness = 1.0;
+	float ray_step = 0.05;
 
 	virtual void setUniforms(Camera* camera, Matrix44 model) = 0;
 	virtual void render(Mesh* mesh, Matrix44 model, Camera * camera) = 0;

@@ -44,9 +44,10 @@ void SceneNode::renderInMenu()
 		ImGui::DragFloat3("Rotation", matrixRotation, 0.1f);
 		ImGui::DragFloat3("Scale", matrixScale, 0.1f);
 		ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, model.m);
-		
 		ImGui::TreePop();
+		
 	}
+
 
 	//Material
 	if (material && ImGui::TreeNode("Material"))
@@ -60,7 +61,41 @@ void SceneNode::renderInMenu()
 	{
 		bool changed = false;
 		changed |= ImGui::Combo("Mesh", (int*)&mesh_selected, "SPHERE\0");
+		
 
 		ImGui::TreePop();
 	}
+}
+
+void SceneNode::swapVolume(int volume_selected) {
+	Volume* volume = new Volume();
+	switch (volume_selected) {
+		case 0:
+			volume->loadPVM("data/volumes/CT-Abdomen.pvm");
+			break;
+		case 1:
+			volume->loadPVM("data/volumes/Daisy.pvm");
+			break;
+		case 2:
+			volume->loadPVM("data/volumes/Orange.pvm");
+			break;
+		case 3:
+			volume->loadPNG("data/volumes/bonsai_16_16.png");
+			break;
+		case 4:
+			volume->loadVL("data/volumes/brain.vl");
+			break;
+		case 5:
+			volume->loadPNG("data/volumes/foot_16_16.png");
+			break;
+		case 6:
+			volume->loadPNG("data/volumes/teapot_16_16.png");
+			break;
+	}
+	Texture* tex = new Texture();
+
+	tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE);
+	material->texture = tex;
+	model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
+
 }
