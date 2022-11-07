@@ -29,6 +29,7 @@ public:
 	float elapsed_time;
 	float brightness;
 	float ray_step;
+	float alpha_filter;
 	unsigned int volume_selected;
 	unsigned int prev_volume;
 	int fps;

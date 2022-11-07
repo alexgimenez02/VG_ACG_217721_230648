@@ -45,38 +45,39 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	camera->setPerspective(45.f, window_width/(float)window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
 
 	brightness = 1.0f;
-	ray_step = 0.05f;
+	ray_step = 0.001f;
+	alpha_filter = 0.01f;
 	{
-		// EXAMPLE OF HOW TO CREATE A SCENE NODE
-		SceneNode* node = new SceneNode("Visible node");
-		node->mesh = Mesh::Get("data/meshes/sphere.obj.mbin");
-		node->model.scale(1, 1, 1);
-		StandardMaterial* mat = new StandardMaterial();
-		node->material = mat;
-		mat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/normal.fs");
-		//node_list.push_back(node);
 
-		// TODO: create all the volumes to use in the app
-		// ...
-		SceneNode* volNode = new SceneNode("Visible node");
+		//Added
+		// Construct volume node
+		SceneNode* volNode = new SceneNode("Volume node");
+		
+		// Create the volume
 		Volume* volume = new Volume();
 		volNode->mesh = new Mesh();
-		volNode->mesh->createCube();
-		volume->loadPVM("data/volumes/CT-Abdomen.pvm");
-		//volume->loadPNG("data/volumes/teapot_16_16.png");
-		//volNode->model.scale(volume->widthSpacing, volume->heightSpacing, volume->depthSpacing);
+		volNode->mesh->createCube(); //Create the mesh
+		volume->loadPVM("data/volumes/CT-Abdomen.pvm"); //Add the PVM/PNG/VL	
+
+		//Create texture
 		Texture* tex = new Texture();
-
-		tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE);
+		tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE); //Create texture from volume
+		
+		//Create material
 		StandardMaterial* stdMat = new StandardMaterial();
-		stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs");
-		stdMat->texture = tex;
-		stdMat->brightness = brightness;
-		stdMat->ray_step = ray_step;
-
+		stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs"); //Add volume shader to the material
+		stdMat->texture = tex; //Add texture
+		//Brightness and ray_step setup
+		{
+			stdMat->brightness = brightness; 
+			stdMat->ray_step = ray_step;
+			stdMat->alpha_filter = alpha_filter;
+		}
+		//Add material to the volume node
 		volNode->material = stdMat;
+		//Scale the model matrix so it fits the whole volume
 		volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
-		node_list.push_back(volNode);
+		node_list.push_back(volNode); //Add the node to the list of nodes
 	}
 	
 	//hide the cursor
@@ -143,8 +144,9 @@ void Application::update(double seconds_elapsed)
 		Input::centerMouse();
 
 	for (auto& node : node_list) {
-		node->material->brightness = brightness;
-		node->material->ray_step = ray_step;
+		if(node->material->brightness != brightness) node->material->brightness = brightness;
+		if(node->material->ray_step != ray_step) node->material->ray_step = ray_step;
+		if(node->material->alpha_filter != alpha_filter) node->material->alpha_filter = alpha_filter;
 		if (volume_selected != prev_volume) 
 			node->swapVolume(volume_selected);
 	}
@@ -253,12 +255,17 @@ void Application::renderInMenu() {
 		ImGui::TreePop();
 	}
 
-	ImGui::DragFloat("Brightness", &brightness, 0.1f, 0.0f, 15.0f);
-	ImGui::DragFloat("Step vector", &ray_step, 0.01f,0.1f,1.15f);
+	//ImGUI Sliders and selectors
+	//Added
+	{
+		ImGui::DragFloat("Brightness", &brightness, 0.1f, 0.0f, 15.0f);
+		ImGui::DragFloat("Step vector", &ray_step, 0.001f, 0.001f,1.00f);
+		ImGui::DragFloat("ALpha filter", &alpha_filter, 0.001f, 0.01f, 0.1f);
 
-	bool changed = false;
-	changed |= ImGui::Combo("Volume", (int*)&volume_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0BRAIN\0FOOT\0TEAPOT");
+		bool changed = false;
+		changed |= ImGui::Combo("Volume", (int*)&volume_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0FOOT\0TEAPOT");
 
-	ImGui::Checkbox("Render debug", &render_debug);
-	ImGui::Checkbox("Wireframe", &render_wireframe);
+		ImGui::Checkbox("Render debug", &render_debug);
+		ImGui::Checkbox("Wireframe", &render_wireframe);
+	}
 }

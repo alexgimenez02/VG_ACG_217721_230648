@@ -22,8 +22,11 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 	shader->setUniform("u_model", model);
 	shader->setUniform("u_time", Application::instance->time);
 	shader->setUniform("u_color", color);
-	shader->setUniform("u_brightness", brightness);
-	shader->setUniform("u_ray_step", ray_step);
+	{ //Added
+		shader->setUniform("u_brightness", brightness);
+		shader->setUniform("u_ray_step", ray_step);
+		shader->setUniform("u_alpha_filter", alpha_filter);
+	}
 
 	if (texture)
 		shader->setUniform("u_texture", texture);

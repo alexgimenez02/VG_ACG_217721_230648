@@ -11,21 +11,24 @@ uniform float u_time;
 uniform vec4 u_color;
 uniform float u_ray_step;
 uniform float u_brightness;
-
-
 uniform sampler3D u_texture;
+uniform float u_alpha_filter;
+
+
 void main() {
 	//1. Setup ray
 	// init variables to use in algorithm
 	vec3 dir = normalize(v_position - u_camera_position);
 	vec3 sample_pos = v_position;
 	vec4 final_color = vec4(0, 0, 0, 0);
+	float d;
+	vec4 sample_color;
 	//for loop
-	for (int i = 0; i < 1000; i++) {
+	for (int i = 0; i < 10000; i++) {
 		//2. Get information from 3D texture
-		float d = texture3D(u_texture, (sample_pos + 1.0)/2.0).x;
+		d = texture(u_texture, (sample_pos + 1.0)/2.0).x;
 		//3. Obtain color from density obtained
-		vec4 sample_color = vec4(d, d, d, d);
+		sample_color = vec4(d, d, d, d);
 		sample_color.rgb *= sample_color.a;
 		//4. Composition of final_color
 		final_color += u_ray_step * (1.0 - final_color.a) * sample_color;
@@ -40,7 +43,7 @@ void main() {
 		}
 	}
 
-	if (final_color.a <= 0.1) {
+	if (final_color.a <= u_alpha_filter) {
 		discard;
 	}
 	gl_FragColor = final_color * u_brightness;

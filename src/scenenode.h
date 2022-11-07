@@ -31,6 +31,7 @@ public:
 	virtual void render(Camera* camera);
 	virtual void renderWireframe(Camera* camera);
 	virtual void renderInMenu();
+	//Added
 	void swapVolume(int volume_selected);
 };
 

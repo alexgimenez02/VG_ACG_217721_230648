@@ -67,6 +67,7 @@ void SceneNode::renderInMenu()
 	}
 }
 
+#pragma region SUPLEMENTARY_SWAP_FUNCTION
 void SceneNode::swapVolume(int volume_selected) {
 	Volume* volume = new Volume();
 	switch (volume_selected) {
@@ -83,19 +84,18 @@ void SceneNode::swapVolume(int volume_selected) {
 			volume->loadPNG("data/volumes/bonsai_16_16.png");
 			break;
 		case 4:
-			volume->loadVL("data/volumes/brain.vl");
-			break;
-		case 5:
 			volume->loadPNG("data/volumes/foot_16_16.png");
 			break;
-		case 6:
+		case 5:
 			volume->loadPNG("data/volumes/teapot_16_16.png");
 			break;
 	}
 	Texture* tex = new Texture();
 
-	tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE);
+	tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE );
 	material->texture = tex;
+	model.scale(1, 1, 1);
 	model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
 
 }
+#pragma endregion SUPLEMENTARY_SWAP_FUNCTION
