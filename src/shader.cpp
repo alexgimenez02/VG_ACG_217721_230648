@@ -294,6 +294,14 @@ std::string Shader::getInfoLog() const
 	return info_log;
 }
 
+string Shader::getPixelShaderName() const
+{
+	const string conststr = string::basic_string(ps_filename.c_str());
+	vector<string> trimmed_shader = split(conststr, '/');
+	const char* filename = trimmed_shader[trimmed_shader.size() - 1].c_str();
+	string ret = "Pixel shader: " + string::basic_string(filename);
+	return ret;
+}
 bool Shader::hasInfoLog() const
 {
 	return info_log.size() > 0; 

@@ -17,7 +17,7 @@
 bool render_wireframe = false;
 Camera* Application::camera = nullptr;
 Application* Application::instance = NULL;
-
+bool jitter = true;
 Application::Application(int window_width, int window_height, SDL_Window* window)
 {
 	this->window_width = window_width;
@@ -79,7 +79,6 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
 		node_list.push_back(volNode); //Add the node to the list of nodes
 	}
-	
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
 }
@@ -257,15 +256,25 @@ void Application::renderInMenu() {
 
 	//ImGUI Sliders and selectors
 	//Added
-	{
-		ImGui::DragFloat("Brightness", &brightness, 0.1f, 0.0f, 15.0f);
-		ImGui::DragFloat("Step vector", &ray_step, 0.001f, 0.001f,1.00f);
-		ImGui::DragFloat("ALpha filter", &alpha_filter, 0.001f, 0.01f, 0.1f);
+	{ //Part 1
+		ImGui::SliderFloat("Brightness", &brightness, 0.0f, 15.0f);
+		ImGui::SliderFloat("Step vector", &ray_step, 0.001f, 1.00f);
+		ImGui::SliderFloat("ALpha filter", &alpha_filter, 0.01f, 0.1f);
 
 		bool changed = false;
 		changed |= ImGui::Combo("Volume", (int*)&volume_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0FOOT\0TEAPOT");
+	}
+	{ //Part 2
+		//ImGui::Checkbox("Jittering", &jitter);
 
+	}
 		ImGui::Checkbox("Render debug", &render_debug);
 		ImGui::Checkbox("Wireframe", &render_wireframe);
-	}
+		if (ImGui::Button("Print fs shader")) {
+			for each (auto& node in node_list)
+			{
+				cout << node->material->shader->getPixelShaderName() << endl;
+			}
+		}
+
 }

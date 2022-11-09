@@ -25,7 +25,7 @@ void main() {
 	vec4 sample_color;
 	//for loop
 	for (int i = 0; i < 10000; i++) {
-		//2. Get information from 3D texture
+		//2. Get density
 		d = texture(u_texture, (sample_pos + 1.0)/2.0).x;
 		//3. Obtain color from density obtained
 		sample_color = vec4(d, d, d, d);

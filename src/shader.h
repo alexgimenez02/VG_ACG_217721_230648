@@ -95,6 +95,7 @@ public:
 	virtual int getUniformLocation(const char* varname);
 
 	std::string getInfoLog() const;
+	std::string getPixelShaderName() const;
 	bool hasInfoLog() const;
 	bool compiled;
 

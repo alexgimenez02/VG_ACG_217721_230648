@@ -13,6 +13,7 @@ uniform float u_ray_step;
 uniform float u_brightness;
 uniform sampler3D u_texture;
 uniform float u_alpha_filter;
+uniform int u_method;
 
 
 void main() {
@@ -23,10 +24,17 @@ void main() {
 	vec4 final_color;
 	float d;
 	vec4 sample_color;
+	float offset;
 	//for loop
 	for (int i = 0; i < 10000; i++) {
 		//2. Get information from 3D texture
 		d = texture(u_texture, (sample_pos + 1.0)/2.0).x;
+		if(u_method == 0){
+			offset = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453);
+		}
+		if(u_method == 1){
+			break;
+		}
 		//3. Obtain color from density obtained
 		sample_color = vec4(d, d, d, d);
 		sample_color.rgb *= sample_color.a;

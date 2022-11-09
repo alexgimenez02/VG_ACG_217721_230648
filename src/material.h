@@ -16,6 +16,7 @@ public:
 	float brightness = 1.0f;
 	float ray_step = 0.05f;
 	float alpha_filter = 0.01f;
+	int method = 1;
 
 	virtual void setUniforms(Camera* camera, Matrix44 model) = 0;
 	virtual void render(Mesh* mesh, Matrix44 model, Camera * camera) = 0;
