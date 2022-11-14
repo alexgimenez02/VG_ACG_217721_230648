@@ -16,6 +16,11 @@ StandardMaterial::~StandardMaterial()
 
 void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 {
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//upload node uniforms
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	shader->setUniform("u_camera_position", camera->eye);
@@ -23,14 +28,24 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 	shader->setUniform("u_time", Application::instance->time);
 	shader->setUniform("u_color", color);
 	{ //Added
-		shader->setUniform("u_brightness", brightness);
-		shader->setUniform("u_ray_step", ray_step);
-		shader->setUniform("u_alpha_filter", alpha_filter);
-		shader->setUniform("u_method", 1);
+		{//Part 1
+			shader->setUniform("u_brightness", brightness);
+			shader->setUniform("u_ray_step", ray_step);
+			shader->setUniform("u_alpha_filter", alpha_filter);
+		}
+		{//Part 2
+			shader->setUniform("u_method", jitterMethod);
+			shader->setUniform("u_jitter", jitter);
+		}
+		
 	}
 
 	if (texture)
 		shader->setUniform("u_texture", texture);
+	if (noise_texture) {
+		shader->setUniform("u_texture_width", noise_texture->width);
+		shader->setUniform("u_noise_texture", noise_texture);
+	}
 }
 
 void StandardMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)

@@ -12,11 +12,14 @@ public:
 
 	Shader* shader = NULL;
 	Texture* texture = NULL;
+	Texture* noise_texture = NULL;
 	vec4 color;
 	float brightness = 1.0f;
 	float ray_step = 0.05f;
 	float alpha_filter = 0.01f;
 	int method = 1;
+	bool jitter = false;
+	int jitterMethod = 0;
 
 	virtual void setUniforms(Camera* camera, Matrix44 model) = 0;
 	virtual void render(Mesh* mesh, Matrix44 model, Camera * camera) = 0;

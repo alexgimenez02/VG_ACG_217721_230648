@@ -17,7 +17,7 @@
 bool render_wireframe = false;
 Camera* Application::camera = nullptr;
 Application* Application::instance = NULL;
-bool jitter = true;
+bool jitter = false;
 Application::Application(int window_width, int window_height, SDL_Window* window)
 {
 	this->window_width = window_width;
@@ -30,6 +30,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	fps = 0;
 	frame = 0;
 	volume_selected = 0;
+	method = 1;
 	prev_volume = 0;
 	time = 0.0f;
 	elapsed_time = 0.0f;
@@ -67,11 +68,14 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		StandardMaterial* stdMat = new StandardMaterial();
 		stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs"); //Add volume shader to the material
 		stdMat->texture = tex; //Add texture
+		stdMat->noise_texture = Texture::Get("data/images/blueNoise.PNG");
 		//Brightness and ray_step setup
 		{
 			stdMat->brightness = brightness; 
 			stdMat->ray_step = ray_step;
 			stdMat->alpha_filter = alpha_filter;
+			stdMat->jitter = jitter;
+			stdMat->jitterMethod = method;
 		}
 		//Add material to the volume node
 		volNode->material = stdMat;
@@ -148,6 +152,8 @@ void Application::update(double seconds_elapsed)
 		if(node->material->alpha_filter != alpha_filter) node->material->alpha_filter = alpha_filter;
 		if (volume_selected != prev_volume) 
 			node->swapVolume(volume_selected);
+		if(node->material->jitterMethod != method) node->material->jitterMethod = method;
+		if (node->material->jitter != jitter) node->material->jitter = jitter;
 	}
 	prev_volume = volume_selected;
 }
@@ -259,15 +265,18 @@ void Application::renderInMenu() {
 	{ //Part 1
 		ImGui::SliderFloat("Brightness", &brightness, 0.0f, 15.0f);
 		ImGui::SliderFloat("Step vector", &ray_step, 0.001f, 1.00f);
-		ImGui::SliderFloat("ALpha filter", &alpha_filter, 0.01f, 0.1f);
+		ImGui::SliderFloat("Alpha filter", &alpha_filter, 0.01f, 0.1f);
 
 		bool changed = false;
 		changed |= ImGui::Combo("Volume", (int*)&volume_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0FOOT\0TEAPOT");
 	}
-	{ //Part 2
-		//ImGui::Checkbox("Jittering", &jitter);
+	if(ImGui::TreeNode("Jittering")) { //Part 2
 
+		ImGui::Checkbox("Activate", (bool*) & jitter);
+		ImGui::Combo("Method", (int*)&method, "Blue Noise Texture\0Pseudorandom-looking\0");
+		ImGui::TreePop();
 	}
+
 		ImGui::Checkbox("Render debug", &render_debug);
 		ImGui::Checkbox("Wireframe", &render_wireframe);
 		if (ImGui::Button("Print fs shader")) {

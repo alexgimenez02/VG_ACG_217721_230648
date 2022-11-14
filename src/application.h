@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "utils.h"
 #include "scenenode.h"
+#include "material.h"
 
 
 class Application
@@ -32,6 +33,7 @@ public:
 	float alpha_filter;
 	unsigned int volume_selected;
 	unsigned int prev_volume;
+	unsigned int method;
 	int fps;
 	bool must_exit;
 	bool render_debug;
