@@ -13,13 +13,16 @@ public:
 	Shader* shader = NULL;
 	Texture* texture = NULL;
 	Texture* noise_texture = NULL;
+	Texture* tf_texture = NULL;
 	vec4 color;
 	float brightness = 1.0f;
 	float ray_step = 0.05f;
 	float alpha_filter = 0.01f;
+	float tf_filter = 0.01f;
 	int method = 1;
 	bool jitter = false;
 	bool jitterMethodb = false;
+	bool tf = false;
 
 	virtual void setUniforms(Camera* camera, Matrix44 model) = 0;
 	virtual void render(Mesh* mesh, Matrix44 model, Camera * camera) = 0;
@@ -35,6 +38,7 @@ public:
 	void setUniforms(Camera* camera, Matrix44 model);
 	void render(Mesh* mesh, Matrix44 model, Camera * camera);
 	void renderInMenu();
+	void swapTF(int selected);
 };
 
 class WireframeMaterial : public StandardMaterial {

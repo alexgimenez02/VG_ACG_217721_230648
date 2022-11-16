@@ -31,12 +31,16 @@ public:
 	float brightness;
 	float ray_step;
 	float alpha_filter;
+	float tf_filter;
 	unsigned int volume_selected;
 	unsigned int prev_volume;
 	unsigned int method;
+	unsigned int tf_selected;
+	unsigned int prev_tf_texture;
 	int fps;
 	bool must_exit;
 	bool render_debug;
+	bool tf;
 
 	// some vars
 	static Camera* camera; //our GLOBAL camera

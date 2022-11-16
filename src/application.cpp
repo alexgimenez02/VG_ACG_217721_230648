@@ -30,12 +30,13 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	fps = 0;
 	frame = 0;
 	volume_selected = 0;
+	tf_selected = 0;
 	method = 1;
 	prev_volume = 0;
 	time = 0.0f;
 	elapsed_time = 0.0f;
 	mouse_locked = false;
-
+	tf = false;
 	// OpenGL flags
 	glEnable( GL_CULL_FACE ); //render both sides of every triangle
 	glEnable( GL_DEPTH_TEST ); //check the occlusions using the Z buffer
@@ -45,9 +46,10 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	camera->lookAt(Vector3(5.f, 5.f, 5.f), Vector3(0.f, 0.0f, 0.f), Vector3(0.f, 1.f, 0.f));
 	camera->setPerspective(45.f, window_width/(float)window_height, 0.1f, 10000.f); //set the projection, we want to be perspective
 
-	brightness = 1.0f;
+	brightness = 10.0f;
 	ray_step = 0.001f;
 	alpha_filter = 0.01f;
+	tf_filter = 0.01f;
 	{
 
 		//Added
@@ -77,6 +79,9 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 			stdMat->jitter = jitter;
 			stdMat->method = method;
 			stdMat->jitterMethodb = true;
+			stdMat->tf = tf;
+			stdMat->tf_texture = Texture::Get("data/images/tf1.png");
+			stdMat->tf_filter = tf_filter;
 		}
 		//Add material to the volume node
 		volNode->material = stdMat;
@@ -158,8 +163,16 @@ void Application::update(double seconds_elapsed)
 			node->material->method = method;
 		}
 		if (node->material->jitter != jitter) node->material->jitter = jitter;
+		if (node->material->tf != tf) node->material->tf = tf;
+		if (node->material->tf_filter != tf_filter) node->material->tf_filter = tf_filter;
+		if (prev_tf_texture != tf_selected) {
+			StandardMaterial* mat = (StandardMaterial*)node->material;
+			mat->swapTF(tf_selected);
+			node->material = mat;
+		}
 	}
 	prev_volume = volume_selected;
+	prev_tf_texture = tf_selected;
 }
 
 // Keyboard event handler (sync input)
@@ -274,10 +287,17 @@ void Application::renderInMenu() {
 		bool changed = false;
 		changed |= ImGui::Combo("Volume", (int*)&volume_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0FOOT\0TEAPOT");
 	}
-	if(ImGui::TreeNode("Jittering")) { //Part 2
+	//Part 2
+	if(ImGui::TreeNode("Jittering")) { 
 
 		ImGui::Checkbox("Activate", (bool*) & jitter);
 		ImGui::Combo("Method", (int*)&method, "Blue Noise Texture\0Pseudorandom-looking\0");
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("Transfer Function")) {
+		ImGui::Checkbox("Activate", (bool*)&tf);
+		ImGui::Combo("Texture", (int*)&tf_selected, "TF1\0TF2\0TF3\0TF4\0");
+		ImGui::SliderFloat("Filter", (float*)&tf_filter, 0.01, 1.0);
 		ImGui::TreePop();
 	}
 

@@ -22,6 +22,11 @@ uniform bool u_jitter;
 uniform sampler2D u_noise_texture;
 uniform float u_texture_width;
 
+//Transfer function
+uniform bool u_tf;
+uniform float u_tf_filter;
+uniform sampler2D u_tf_texture;
+
 float rand( vec2 co )
 {
 	return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
@@ -50,10 +55,21 @@ void main() {
 		//2. Get information from 3D texture
 		d = texture(u_texture, (sample_pos + 1.0)/2.0).x;
 		//3. Obtain color from density obtained
-		sample_color = vec4(d, d, d, d);
+		if(u_tf){
+			if(d > u_tf_filter){
+				sample_color = texture(u_tf_texture, vec2(d,1.0));
+				sample_color.a *= d * 0.5;
+			}
+		}
+		else{
+			sample_color = vec4(d, d, d, d);
+		}
 		sample_color.rgb *= sample_color.a;
 		//4. Composition of final_color
 		final_color += u_ray_step * (1.0 - final_color.a) * sample_color;
+		if(!u_tf){
+			final_color *= u_color;
+		}
 		//5. Next Sample and Exit Conditions
 		sample_pos = sample_pos + dir*u_ray_step;
 		if (sample_pos.x > 1.0 || sample_pos.y > 1.0 || sample_pos.z > 1.0 
@@ -68,5 +84,5 @@ void main() {
 	if (final_color.a <= u_alpha_filter) {
 		discard;
 	}
-	gl_FragColor = final_color * u_brightness * u_color;
+	gl_FragColor = final_color * u_brightness;
 }

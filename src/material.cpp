@@ -37,18 +37,24 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 			shader->setUniform("u_alpha_filter", alpha_filter);
 		}
 		{//Part 2
+			//Jittering
 			shader->setUniform("u_method", jitterMethodb);
 			shader->setUniform("u_jitter", jitter);
+			//Transfer function
+			shader->setUniform("u_tf", tf);
+			shader->setUniform("u_tf_filter", tf_filter);
 		}
 		
 	}
 
 	if (texture)
-		shader->setUniform("u_texture", texture);
+		shader->setUniform("u_texture", texture, 0);
 	if (noise_texture) {
 		shader->setUniform("u_texture_width", noise_texture->width);
-		shader->setUniform("u_noise_texture", noise_texture);
+		shader->setUniform("u_noise_texture", noise_texture, 1);
 	}
+	if (tf_texture)
+		shader->setUniform("u_tf_texture", tf_texture, 2);
 }
 
 void StandardMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
@@ -72,6 +78,27 @@ void StandardMaterial::render(Mesh* mesh, Matrix44 model, Camera* camera)
 void StandardMaterial::renderInMenu()
 {
 	ImGui::ColorEdit3("Color", (float*)&color); // Edit 3 floats representing a color
+}
+
+void StandardMaterial::swapTF(int selected)
+{
+	string filename = "data/images/";
+	switch (selected) {
+		case 0:
+			filename += "TF1.png";
+			break;
+		case 1:
+			filename += "TF2.png";
+			break;
+		case 2:
+			filename += "TF3.png";
+			break;
+		case 3:
+			filename += "TF4.png";
+			break;
+	}
+	tf_texture = Texture::Get(filename.c_str());
+
 }
 
 WireframeMaterial::WireframeMaterial()
