@@ -15,8 +15,9 @@ uniform vec4 u_color;
 uniform float u_ray_step;
 uniform float u_brightness;
 uniform float u_alpha_filter;
-//Part 2 Jitter
-uniform int u_method;
+//Part 2 
+//Jitter
+uniform bool u_method;
 uniform bool u_jitter;
 uniform sampler2D u_noise_texture;
 uniform float u_texture_width;
@@ -37,7 +38,7 @@ void main() {
 	float offset;
 	//for loop
 	if(u_jitter){
-		if(u_method == 1){
+		if(u_method){
 			offset = rand(gl_FragCoord.xy);
 		}else{
 			vec2 uv_noise = gl_FragCoord.xy / u_texture_width;

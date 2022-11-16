@@ -37,7 +37,7 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 			shader->setUniform("u_alpha_filter", alpha_filter);
 		}
 		{//Part 2
-			shader->setUniform("u_method", jitterMethod);
+			shader->setUniform("u_method", jitterMethodb);
 			shader->setUniform("u_jitter", jitter);
 		}
 		

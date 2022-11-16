@@ -75,7 +75,8 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 			stdMat->ray_step = ray_step;
 			stdMat->alpha_filter = alpha_filter;
 			stdMat->jitter = jitter;
-			stdMat->jitterMethod = method;
+			stdMat->method = method;
+			stdMat->jitterMethodb = true;
 		}
 		//Add material to the volume node
 		volNode->material = stdMat;
@@ -152,7 +153,10 @@ void Application::update(double seconds_elapsed)
 		if(node->material->alpha_filter != alpha_filter) node->material->alpha_filter = alpha_filter;
 		if (volume_selected != prev_volume) 
 			node->swapVolume(volume_selected);
-		if(node->material->jitterMethod != method) node->material->jitterMethod = method;
+		if (node->material->method != method) {
+			node->material->jitterMethodb = !node->material->jitterMethodb;
+			node->material->method = method;
+		}
 		if (node->material->jitter != jitter) node->material->jitter = jitter;
 	}
 	prev_volume = volume_selected;

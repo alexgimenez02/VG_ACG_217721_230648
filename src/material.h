@@ -19,7 +19,7 @@ public:
 	float alpha_filter = 0.01f;
 	int method = 1;
 	bool jitter = false;
-	int jitterMethod = 0;
+	bool jitterMethodb = false;
 
 	virtual void setUniforms(Camera* camera, Matrix44 model) = 0;
 	virtual void render(Mesh* mesh, Matrix44 model, Camera * camera) = 0;
