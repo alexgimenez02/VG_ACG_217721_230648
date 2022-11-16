@@ -7,6 +7,14 @@
 #include "mesh.h"
 #include "extra/hdre.h"
 
+
+typedef struct sPlane {
+	float a; 
+	float b; 
+	float c; 
+	float d; 
+}Plane;
+
 class Material {
 public:
 
@@ -23,6 +31,8 @@ public:
 	bool jitter = false;
 	bool jitterMethodb = false;
 	bool tf = false;
+	bool vc = false;
+	Plane plane;
 
 	virtual void setUniforms(Camera* camera, Matrix44 model) = 0;
 	virtual void render(Mesh* mesh, Matrix44 model, Camera * camera) = 0;

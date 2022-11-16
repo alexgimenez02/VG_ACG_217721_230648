@@ -50,6 +50,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	ray_step = 0.001f;
 	alpha_filter = 0.01f;
 	tf_filter = 0.01f;
+	pl = { 1.0 , 1.0 , 1.0 , 1.0 };
 	{
 
 		//Added
@@ -170,6 +171,11 @@ void Application::update(double seconds_elapsed)
 			mat->swapTF(tf_selected);
 			node->material = mat;
 		}
+		if (node->material->plane.a != pl.a || node->material->plane.b != pl.b || 
+			node->material->plane.c != pl.c || node->material->plane.d != pl.d) {
+			node->material->plane = pl;
+		}
+		if (node->material->vc != vc) node->material->vc = vc;
 	}
 	prev_volume = volume_selected;
 	prev_tf_texture = tf_selected;
@@ -300,14 +306,31 @@ void Application::renderInMenu() {
 		ImGui::SliderFloat("Filter", (float*)&tf_filter, 0.01, 1.0);
 		ImGui::TreePop();
 	}
+	if (ImGui::TreeNode("Volume clipping")) {
+		ImGui::Checkbox("Activate", (bool*)&vc);
+		float planeVector[4];
+		planeVector[0] = pl.a;
+		planeVector[1] = pl.b;
+		planeVector[2] = pl.c;
+		planeVector[3] = pl.d;
+		ImGui::SliderFloat4("Plane values", planeVector, -1.0, 1.0);
+		pl = { planeVector[0] , planeVector[1] , planeVector[2]  , planeVector[3] };
+		ImGui::TreePop();
+	}
 
+	if (ImGui::TreeNode("Debug options")) {
 		ImGui::Checkbox("Render debug", &render_debug);
 		ImGui::Checkbox("Wireframe", &render_wireframe);
 		if (ImGui::Button("Print fs shader")) {
-			for each (auto& node in node_list)
+			for each (auto & node in node_list)
 			{
 				cout << node->material->shader->getPixelShaderName() << endl;
 			}
 		}
+		if (ImGui::Button("Print plane")) {
+			cout << "Plane: " << pl.a << "x + " << pl.b << "y + " << pl.c << "z + " << pl.d << endl;
+		}
+		ImGui::TreePop();
+	}
 
 }

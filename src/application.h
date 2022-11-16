@@ -41,6 +41,8 @@ public:
 	bool must_exit;
 	bool render_debug;
 	bool tf;
+	bool vc;
+	Plane pl;
 
 	// some vars
 	static Camera* camera; //our GLOBAL camera

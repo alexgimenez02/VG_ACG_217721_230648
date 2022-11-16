@@ -27,6 +27,11 @@ uniform bool u_tf;
 uniform float u_tf_filter;
 uniform sampler2D u_tf_texture;
 
+//Volume clipping
+uniform bool u_vc;
+uniform vec4 u_plane;
+
+
 float rand( vec2 co )
 {
 	return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
@@ -72,6 +77,12 @@ void main() {
 		}
 		//5. Next Sample and Exit Conditions
 		sample_pos = sample_pos + dir*u_ray_step;
+		if(u_vc){
+			float pl_eq = sample_pos.x * u_plane.x + sample_pos.y * u_plane.y + sample_pos.z * u_plane.z + u_plane.a;
+			if(pl_eq > 0){
+				break;
+			}
+		}
 		if (sample_pos.x > 1.0 || sample_pos.y > 1.0 || sample_pos.z > 1.0 
 			|| sample_pos.x < -1.0 || sample_pos.y < -1.0 || sample_pos.z < -1.0) {
 			break;

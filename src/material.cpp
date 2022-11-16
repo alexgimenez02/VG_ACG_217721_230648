@@ -43,6 +43,9 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 			//Transfer function
 			shader->setUniform("u_tf", tf);
 			shader->setUniform("u_tf_filter", tf_filter);
+			//Volume clipping
+			shader->setUniform("u_vc", vc);
+			shader->setUniform("u_plane",Vector4(plane.a, plane.b, plane.c, plane.d));
 		}
 		
 	}
