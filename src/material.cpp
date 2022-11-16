@@ -22,9 +22,12 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//upload node uniforms
+	Matrix44 inv_model = model;
+	inv_model.inverse();
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	shader->setUniform("u_camera_position", camera->eye);
 	shader->setUniform("u_model", model);
+	shader->setUniform("u_inverse_model", inv_model);
 	shader->setUniform("u_time", Application::instance->time);
 	shader->setUniform("u_color", color);
 	{ //Added

@@ -8,6 +8,7 @@ uniform sampler3D u_texture;
 uniform vec3 u_camera_position;
 uniform mat4 u_viewprojection;
 uniform mat4 u_model;
+uniform mat4 u_inverse_model;
 uniform float u_time;
 uniform vec4 u_color;
 //Part 1
@@ -28,7 +29,7 @@ float rand( vec2 co )
 void main() {
 	//1. Setup ray
 	// init variables to use in algorithm
-	vec3 dir = normalize(v_position - u_camera_position);
+	vec3 dir = normalize(v_position - (u_inverse_model * vec4(u_camera_position, 1.0)).xyz );
 	vec3 sample_pos = v_position;
 	vec4 final_color;
 	float d;
