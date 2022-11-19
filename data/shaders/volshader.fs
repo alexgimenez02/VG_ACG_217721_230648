@@ -32,6 +32,8 @@ uniform bool u_vc;
 uniform vec4 u_plane;
 
 
+
+
 float rand( vec2 co )
 {
 	return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
@@ -57,9 +59,17 @@ void main() {
 		sample_pos += offset * dir * u_ray_step;
 	}
 	for (int i = 0; i < 10000; i++) {
+		if(u_vc){
+			float pl_eq = sample_pos.x * u_plane.x + sample_pos.y * u_plane.y + sample_pos.z * u_plane.z + u_plane.a;
+			if(pl_eq > 0){
+				sample_pos += dir*u_ray_step;
+				continue;
+			}
+		}
 		//2. Get information from 3D texture
 		d = texture(u_texture, (sample_pos + 1.0)/2.0).x;
 		//3. Obtain color from density obtained
+		
 		if(u_tf){
 			if(d > u_tf_filter){
 				sample_color = texture(u_tf_texture, vec2(d,1.0));
@@ -77,12 +87,8 @@ void main() {
 		}
 		//5. Next Sample and Exit Conditions
 		sample_pos = sample_pos + dir*u_ray_step;
-		if(u_vc){
-			float pl_eq = sample_pos.x * u_plane.x + sample_pos.y * u_plane.y + sample_pos.z * u_plane.z + u_plane.a;
-			if(pl_eq > 0){
-				break;
-			}
-		}
+		
+		
 		if (sample_pos.x > 1.0 || sample_pos.y > 1.0 || sample_pos.z > 1.0 
 			|| sample_pos.x < -1.0 || sample_pos.y < -1.0 || sample_pos.z < -1.0) {
 			break;
@@ -90,6 +96,7 @@ void main() {
 		if (final_color.a >= 1.0) {
 			break;
 		}
+		
 	}
 
 	if (final_color.a <= u_alpha_filter) {

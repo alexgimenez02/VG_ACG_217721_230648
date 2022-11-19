@@ -46,6 +46,10 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 			//Volume clipping
 			shader->setUniform("u_vc", vc);
 			shader->setUniform("u_plane",Vector4(plane.a, plane.b, plane.c, plane.d));
+
+			//Isosurface
+			shader->setUniform("u_iso", iso);
+			shader->setUniform("u_h_value", h_value);
 		}
 		
 	}

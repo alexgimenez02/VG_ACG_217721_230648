@@ -15,6 +15,10 @@ uniform sampler3D u_texture;
 uniform float u_alpha_filter;
 
 
+//Isosurfaces
+uniform bool u_iso;
+uniform float u_h_value;
+
 void main() {
 	//1. Setup ray
 	// init variables to use in algorithm

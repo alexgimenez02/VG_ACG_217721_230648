@@ -317,6 +317,13 @@ void Application::renderInMenu() {
 		pl = { planeVector[0] , planeVector[1] , planeVector[2]  , planeVector[3] };
 		ImGui::TreePop();
 	}
+	if (ImGui::TreeNode("Isosurfaces")){
+		ImGui::Checkbox("Activate", (bool*)&iso);
+		ImGui::SliderFloat("H value", (float*)&h_value, 0.0, 1.0);
+
+		ImGui::TreePop();
+	}
+
 
 	if (ImGui::TreeNode("Debug options")) {
 		ImGui::Checkbox("Render debug", &render_debug);

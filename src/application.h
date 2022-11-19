@@ -32,6 +32,7 @@ public:
 	float ray_step;
 	float alpha_filter;
 	float tf_filter;
+	float h_value;
 	unsigned int volume_selected;
 	unsigned int prev_volume;
 	unsigned int method;
@@ -42,6 +43,7 @@ public:
 	bool render_debug;
 	bool tf;
 	bool vc;
+	bool iso;
 	Plane pl;
 
 	// some vars

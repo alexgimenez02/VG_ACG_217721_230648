@@ -32,6 +32,8 @@ public:
 	bool jitterMethodb = false;
 	bool tf = false;
 	bool vc = false;
+	bool iso = false;
+	float h_value = 0.0;
 	Plane plane;
 
 	virtual void setUniforms(Camera* camera, Matrix44 model) = 0;
