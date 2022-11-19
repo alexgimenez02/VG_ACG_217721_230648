@@ -313,14 +313,20 @@ void Application::renderInMenu() {
 		planeVector[1] = pl.b;
 		planeVector[2] = pl.c;
 		planeVector[3] = pl.d;
-		ImGui::SliderFloat4("Plane values", planeVector, -1.0, 1.0);
+		ImGui::SliderFloat4("Plane values", planeVector, -5.0, 5.0);
 		pl = { planeVector[0] , planeVector[1] , planeVector[2]  , planeVector[3] };
 		ImGui::TreePop();
 	}
-	if (ImGui::TreeNode("Isosurfaces")){
+	if (ImGui::TreeNode("Isosurfaces")) {
 		ImGui::Checkbox("Activate", (bool*)&iso);
 		ImGui::SliderFloat("H value", (float*)&h_value, 0.0, 1.0);
-
+		if(ImGui::TreeNode("Phong")) {
+			ImGui::Checkbox("Activate", (bool*)&phong);
+			ImGui::SliderFloat("Diffuse coefficient",(float*)&kd,-1.0,1.0);
+			ImGui::SliderFloat("Ambient coefficient",(float*)&ka,-1.0,1.0);
+			ImGui::SliderFloat("Specular coefficient",(float*)&ks,-1.0,1.0);
+			ImGui::TreePop();
+		}
 		ImGui::TreePop();
 	}
 

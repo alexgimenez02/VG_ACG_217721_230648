@@ -63,6 +63,13 @@ void main() {
 			float pl_eq = sample_pos.x * u_plane.x + sample_pos.y * u_plane.y + sample_pos.z * u_plane.z + u_plane.a;
 			if(pl_eq > 0){
 				sample_pos += dir*u_ray_step;
+				if (sample_pos.x > 1.0 || sample_pos.y > 1.0 || sample_pos.z > 1.0 
+					|| sample_pos.x < -1.0 || sample_pos.y < -1.0 || sample_pos.z < -1.0) {
+					break;
+				}
+				if (final_color.a >= 1.0) {
+					break;
+				}
 				continue;
 			}
 		}

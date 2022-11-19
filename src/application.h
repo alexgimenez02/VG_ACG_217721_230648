@@ -33,6 +33,9 @@ public:
 	float alpha_filter;
 	float tf_filter;
 	float h_value;
+	float kd;
+	float ka;
+	float ks;
 	unsigned int volume_selected;
 	unsigned int prev_volume;
 	unsigned int method;
@@ -44,6 +47,7 @@ public:
 	bool tf;
 	bool vc;
 	bool iso;
+	bool phong;
 	Plane pl;
 
 	// some vars
