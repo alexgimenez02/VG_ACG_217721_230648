@@ -368,6 +368,7 @@ void Application::renderInMenu() {
 		std::stringstream ss;
 		for (auto& node : node_list)
 		{
+			if (node->name == "Light") continue;
 			ss << count;
 			if (ImGui::TreeNode(node->name.c_str()))
 			{
