@@ -133,7 +133,7 @@ void Application::render(void)
 
 	for (size_t i = 0; i < node_list.size(); i++) {
 		if (node_list[i]->name == "Light") {
-			if (iso && show_light)
+			if (iso)
 				node_list[i]->render(camera);
 			else continue;
 		}
@@ -181,41 +181,48 @@ void Application::update(double seconds_elapsed)
 		Input::centerMouse();
 	if (node_list.size() - 1 < 2) {
 		for (auto& node : node_list) {
-		if (node->name != "Light") {
-			if(node->material->brightness != brightness) node->material->brightness = brightness;
-			if(node->material->ray_step != ray_step) node->material->ray_step = ray_step;
-			if(node->material->alpha_filter != alpha_filter) node->material->alpha_filter = alpha_filter;
-			if (volume_selected != prev_volume) 
-				node->swapVolume(volume_selected);
-			if (node->material->method != method) {
-				node->material->jitterMethodb = !node->material->jitterMethodb;
-				node->material->method = method;
+			if (node->name != "Light") {
+				if(node->material->brightness != brightness) node->material->brightness = brightness;
+				if(node->material->ray_step != ray_step) node->material->ray_step = ray_step;
+				if(node->material->alpha_filter != alpha_filter) node->material->alpha_filter = alpha_filter;
+				if (volume_selected != prev_volume) 
+					node->swapVolume(volume_selected);
+				if (node->material->method != method) {
+					node->material->jitterMethodb = !node->material->jitterMethodb;
+					node->material->method = method;
+				}
+				if (node->material->jitter != jitter) node->material->jitter = jitter;
+				if (node->material->tf != tf) node->material->tf = tf;
+				if (node->material->tf_filter != tf_filter) node->material->tf_filter = tf_filter;
+				if (prev_tf_texture != tf_selected) {
+					StandardMaterial* mat = (StandardMaterial*)node->material;
+					mat->swapTF(tf_selected);
+					node->material = mat;
+				}
+				if (node->material->plane.a != pl.a || node->material->plane.b != pl.b || 
+					node->material->plane.c != pl.c || node->material->plane.d != pl.d) {
+					node->material->plane = pl;
+				}
+				if (node->material->vc != vc) node->material->vc = vc;
+				if (node->material->iso != iso) node->material->iso = iso;
+				if (node->material->light_position.x != light_position.x || node->material->light_position.y != light_position.y
+					|| node->material->light_position.z != light_position.z) node->material->light_position = light_position;
+				if (node->material->h_value != h_value) node->material->h_value = h_value;
+				if(node->material->light_intensity != light_intensity) node->material->light_intensity = light_intensity;
+				if(node->material->iso_threshold != threshold) node->material->iso_threshold = threshold;
 			}
-			if (node->material->jitter != jitter) node->material->jitter = jitter;
-			if (node->material->tf != tf) node->material->tf = tf;
-			if (node->material->tf_filter != tf_filter) node->material->tf_filter = tf_filter;
-			if (prev_tf_texture != tf_selected) {
-				StandardMaterial* mat = (StandardMaterial*)node->material;
-				mat->swapTF(tf_selected);
-				node->material = mat;
+			else {
+				node->model.setTranslation(light_position.x,light_position.y, light_position.z);
 			}
-			if (node->material->plane.a != pl.a || node->material->plane.b != pl.b || 
-				node->material->plane.c != pl.c || node->material->plane.d != pl.d) {
-				node->material->plane = pl;
-			}
-			if (node->material->vc != vc) node->material->vc = vc;
-			if (node->material->iso != iso) node->material->iso = iso;
-			if (node->material->light_position.x != light_position.x || node->material->light_position.y != light_position.y
-				|| node->material->light_position.z != light_position.z) node->material->light_position = light_position;
-			if (node->material->h_value != h_value) node->material->h_value = h_value;
-			if(node->material->light_intensity != light_intensity) node->material->light_intensity = light_intensity;
-			if(node->material->iso_threshold != threshold) node->material->iso_threshold = threshold;
-		}
-		else {
-			node->model.setTranslation(light_position.x,light_position.y, light_position.z);
-		}
 
+		}
 	}
+	else {
+		for (auto& node : node_list) {
+			if (node->name == "Light") {
+				node->model.setTranslation(light_position.x, light_position.y, light_position.z);
+			}
+		}
 	}
 	prev_volume = volume_selected;
 	prev_tf_texture = tf_selected;
@@ -423,6 +430,23 @@ void Application::renderInMenu() {
 				ImGui::TreePop();
 			}
 			ImGui::TreePop();
+		}
+	}
+	else {
+		for (auto& node : node_list)
+		{
+			if (node->material->iso) {
+				if (ImGui::TreeNode("Light values")) {
+					float lightPos[3];
+					lightPos[0] = light_position.x;
+					lightPos[1] = light_position.y;
+					lightPos[2] = light_position.z;
+					ImGui::DragFloat3("Position", lightPos, 0.05f);
+					light_position = Vector3(lightPos[0], lightPos[1], lightPos[2]);
+					ImGui::SliderFloat("Light intensity", &light_intensity, 0.1, 2.5);
+					ImGui::TreePop();
+				}
+			}
 		}
 	}
 

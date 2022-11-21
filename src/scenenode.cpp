@@ -112,17 +112,6 @@ void SceneNode::renderInMenu()
 				ImGui::Checkbox("Activate", &mat->iso);
 				ImGui::SliderFloat("Threshold", &mat->iso_threshold, 0.01, 0.99f);
 				ImGui::SliderFloat("H value", &mat->h_value, 0.005, 0.1);
-				if (ImGui::TreeNode("Light values")) {
-					ImGui::Checkbox("Show", &app->show_light);
-					float lightPos[3];
-					lightPos[0] = mat->light_position.x;
-					lightPos[1] = mat->light_position.y;
-					lightPos[2] = mat->light_position.z;
-					ImGui::DragFloat3("Position", lightPos, 0.05f);
-					mat->light_position = Vector3(lightPos[0], lightPos[1], lightPos[2]);
-					ImGui::SliderFloat("Light intensity", &mat->light_intensity, 0.1, 2.5);
-					ImGui::TreePop();
-				}
 				material = mat;
 				ImGui::TreePop();
 			}
