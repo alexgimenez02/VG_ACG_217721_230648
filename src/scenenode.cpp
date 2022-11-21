@@ -59,10 +59,11 @@ void SceneNode::renderInMenu()
 	//Geometry
 	if (mesh && ImGui::TreeNode("Geometry"))
 	{
-		bool changed = false;
-		changed |= ImGui::Combo("Mesh", (int*)&mesh_selected, "SPHERE\0");
-		
-
+		vector<SceneNode*> nd_list = Application::instance->node_list;
+		if (nd_list.size() - 1 > 2) {
+			bool changed = false;
+			changed |= ImGui::Combo("Volume", (int*)&mesh_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0FOOT\0TEAPOT");
+		}
 		ImGui::TreePop();
 	}
 }

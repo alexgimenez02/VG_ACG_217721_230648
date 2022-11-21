@@ -319,7 +319,51 @@ void Application::onFileChanged(const char* filename)
 void Application::renderInMenu() {
 
 	if (ImGui::TreeNode("Scene")) {
-		//
+		if(ImGui::Button("Add node")) {
+		SceneNode* volNode = new SceneNode("Volume node");
+
+		// Create the volume
+		Volume* volume = new Volume();
+		volNode->mesh = new Mesh();
+		volNode->mesh->createCube(); //Create the mesh
+		volume->loadPVM("data/volumes/CT-Abdomen.pvm"); //Add the PVM/PNG/VL	
+
+		//Create texture
+		Texture* tex = new Texture();
+		tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE); //Create texture from volume
+
+		//Create material
+		StandardMaterial* stdMat = new StandardMaterial();
+		stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs"); //Add volume shader to the material
+		stdMat->texture = tex; //Add texture
+		stdMat->noise_texture = Texture::Get("data/images/blueNoise.PNG");
+		//Brightness and ray_step setup
+		{
+			stdMat->brightness = brightness;
+			stdMat->ray_step = ray_step;
+			stdMat->alpha_filter = alpha_filter;
+			stdMat->jitter = jitter;
+			stdMat->method = method;
+			stdMat->jitterMethodb = true;
+			stdMat->tf = tf;
+			stdMat->tf_texture = Texture::Get("data/images/tf1.png");
+			stdMat->tf_filter = tf_filter;
+			stdMat->iso = iso;
+			stdMat->h_value = h_value;
+			stdMat->light_position = light_position;
+			stdMat->light_intensity = light_intensity;
+			stdMat->iso_threshold = threshold;
+		}
+		//Add material to the volume node
+		volNode->material = stdMat;
+		//Scale the model matrix so it fits the whole volume
+		volNode->model.translate(5 * (node_list.size() - 1), 0.0, 0.0);
+		volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
+		node_list.push_back(volNode); //Add the node to the list of nodes
+	}
+	if (ImGui::Button("Remove node")) {
+		node_list.pop_back();
+	}
 		ImGui::TreePop();
 	}
 
@@ -354,8 +398,10 @@ void Application::renderInMenu() {
 		ImGui::SliderFloat("Step vector", &ray_step, 0.001f, 1.00f);
 		ImGui::SliderFloat("Alpha filter", &alpha_filter, 0.01f, 0.1f);
 
-		bool changed = false;
-		changed |= ImGui::Combo("Volume", (int*)&volume_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0FOOT\0TEAPOT");
+		if(node_list.size() - 1 < 2){
+			bool changed = false;
+			changed |= ImGui::Combo("Volume", (int*)&volume_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0FOOT\0TEAPOT");
+		}
 	}
 	//Part 2
 	if(ImGui::TreeNode("Jittering")) { 
@@ -411,52 +457,6 @@ void Application::renderInMenu() {
 		}
 		if (ImGui::Button("Print plane")) {
 			cout << "Plane: " << pl.a << "x + " << pl.b << "y + " << pl.c << "z + " << pl.d << endl;
-		}
-		if(ImGui::Button("Add node")) {
-			SceneNode* volNode = new SceneNode("Volume node");
-
-			// Create the volume
-			Volume* volume = new Volume();
-			volNode->mesh = new Mesh();
-			volNode->mesh->createCube(); //Create the mesh
-			volume->loadPVM("data/volumes/CT-Abdomen.pvm"); //Add the PVM/PNG/VL	
-
-			//Create texture
-			Texture* tex = new Texture();
-			tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE); //Create texture from volume
-
-			//Create material
-			StandardMaterial* stdMat = new StandardMaterial();
-			stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs"); //Add volume shader to the material
-			stdMat->texture = tex; //Add texture
-			stdMat->noise_texture = Texture::Get("data/images/blueNoise.PNG");
-			//Brightness and ray_step setup
-			{
-				stdMat->brightness = brightness;
-				stdMat->ray_step = ray_step;
-				stdMat->alpha_filter = alpha_filter;
-				stdMat->jitter = jitter;
-				stdMat->method = method;
-				stdMat->jitterMethodb = true;
-				stdMat->tf = tf;
-				stdMat->tf_texture = Texture::Get("data/images/tf1.png");
-				stdMat->tf_filter = tf_filter;
-				stdMat->iso = iso;
-				stdMat->h_value = h_value;
-				stdMat->light_position = light_position;
-				stdMat->light_intensity = light_intensity;
-				stdMat->iso_threshold = threshold;
-			}
-			//Add material to the volume node
-			volNode->material = stdMat;
-			//Scale the model matrix so it fits the whole volume
-			volNode->model.setTranslation(5 * (node_list.size() - 1), 0.0, 0.0);
-			volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
-			node_list.push_back(volNode); //Add the node to the list of nodes
-		}
-		if (ImGui::Button("Remove node")) {
-
-			node_list.pop_back();
 		}
 		ImGui::TreePop();
 	}
