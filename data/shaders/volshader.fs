@@ -31,6 +31,13 @@ uniform sampler2D u_tf_texture;
 uniform bool u_vc;
 uniform vec4 u_plane;
 
+//Isosurfaces
+uniform bool u_iso;
+uniform float u_h_value;
+uniform vec3 u_local_light_position;
+uniform vec3 u_local_camera_position;
+uniform float u_light_intensity;
+uniform float u_threshold;
 
 
 
@@ -88,11 +95,35 @@ void main() {
 		}
 		sample_color.rgb *= sample_color.a;
 		//4. Composition of final_color
-		final_color += u_ray_step * (1.0 - final_color.a) * sample_color;
-		if(!u_tf){
-			final_color *= u_color;
+
+		if(u_iso){
+			if(d > u_threshold){
+				vec3 L = u_local_light_position - sample_pos;
+				vec3 V = u_local_camera_position - sample_pos;
+
+				float posdx = texture3D(u_texture, ((sample_pos+1.0)/2.0 + vec3(u_h_value,0,0))).x - texture3D(u_texture, ((sample_pos+1.0)/2.0 - vec3(u_h_value,0,0))).x;
+				float posdy = texture3D(u_texture, ((sample_pos+1.0)/2.0 + vec3(0,u_h_value,0))).x - texture3D(u_texture, ((sample_pos+1.0)/2.0 - vec3(0,u_h_value,0))).x;
+				float posdz = texture3D(u_texture, ((sample_pos+1.0)/2.0 + vec3(0,0,u_h_value))).x - texture3D(u_texture, ((sample_pos+1.0)/2.0 - vec3(0,0,u_h_value))).x;
+				vec3 N = -1*vec3(posdx,posdy,posdz) / (2*u_h_value);
+
+				N = normalize(N);
+				L = normalize(L);
+				V = normalize(V);
+
+				vec3 R = reflect(-L, N);
+
+				vec4 Ip = vec4(sample_color.rgb * (clamp(dot(N,L),0.0,1.0) + pow(clamp(dot(R,V),0.0,1.0), u_light_intensity) ), 1.0); 
+
+				final_color = Ip;
+				break;
+			}
+		}else{
+			final_color += u_ray_step * (1.0 - final_color.a) * sample_color;
+			if(!u_tf){
+				final_color *= u_color;
+			}
+			//5. Next Sample and Exit Conditions
 		}
-		//5. Next Sample and Exit Conditions
 		sample_pos = sample_pos + dir*u_ray_step;
 		
 		

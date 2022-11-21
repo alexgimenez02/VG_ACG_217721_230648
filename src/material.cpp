@@ -50,6 +50,14 @@ void StandardMaterial::setUniforms(Camera* camera, Matrix44 model)
 			//Isosurface
 			shader->setUniform("u_iso", iso);
 			shader->setUniform("u_h_value", h_value);
+			Vector4 local_cam = Vector4(camera->eye,1.0);
+			local_cam = inv_model * local_cam;
+			shader->setUniform("u_local_camera_position", local_cam.xyz);
+			Vector4 local_light = Vector4(light_position, 1.0);
+			local_light = inv_model * local_light;
+			shader->setUniform("u_local_light_position", local_light.xyz);
+			shader->setUniform("u_light_intensity", light_intensity);
+			shader->setUniform("u_threshold", iso_threshold);
 		}
 		
 	}

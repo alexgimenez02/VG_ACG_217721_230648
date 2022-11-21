@@ -33,9 +33,7 @@ public:
 	float alpha_filter;
 	float tf_filter;
 	float h_value;
-	float kd;
-	float ka;
-	float ks;
+	float light_intensity;
 	unsigned int volume_selected;
 	unsigned int prev_volume;
 	unsigned int method;
@@ -49,6 +47,8 @@ public:
 	bool iso;
 	bool phong;
 	Plane pl;
+
+	Vector3 light_position;
 
 	// some vars
 	static Camera* camera; //our GLOBAL camera

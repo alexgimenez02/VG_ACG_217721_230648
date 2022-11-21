@@ -23,6 +23,7 @@ public:
 	Texture* noise_texture = NULL;
 	Texture* tf_texture = NULL;
 	vec4 color;
+	Vector3 light_position;
 	float brightness = 1.0f;
 	float ray_step = 0.05f;
 	float alpha_filter = 0.01f;
@@ -34,6 +35,8 @@ public:
 	bool vc = false;
 	bool iso = false;
 	float h_value = 0.0;
+	float light_intensity = 0.1;
+	float iso_threshold = 0.98;
 	Plane plane;
 
 	virtual void setUniforms(Camera* camera, Matrix44 model) = 0;
