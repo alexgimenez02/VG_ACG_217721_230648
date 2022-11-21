@@ -37,6 +37,7 @@ uniform float u_h_value;
 uniform vec3 u_local_light_position;
 uniform vec3 u_local_camera_position;
 uniform float u_light_intensity;
+uniform vec4 u_light_color;
 uniform float u_threshold;
 
 
@@ -123,10 +124,11 @@ void main() {
 				break;
 			}
 		}else{
-			final_color += u_ray_step * (1.0 - final_color.a) * sample_color; //Part 1
 			if(!u_tf){ //Part 2
-				final_color *= u_color; //Part 1
-			}
+				final_color += u_ray_step * (1.0 - final_color.a) * sample_color * u_color; //Part 1
+			}else{
+				final_color += u_ray_step * (1.0 - final_color.a) * sample_color;
+			}	
 		}
 		//5. Next Sample and Exit Conditions (Part 1)
 		sample_pos = sample_pos + dir*u_ray_step; //Part 1

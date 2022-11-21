@@ -38,6 +38,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	time = 0.0f;
 	elapsed_time = 0.0f;
 	mouse_locked = false;
+	jitter = false;
 	tf = false;
 	vc = false;
 	iso = false;
@@ -178,8 +179,8 @@ void Application::update(double seconds_elapsed)
 	// to navigate with the mouse fixed in the middle
 	if (mouse_locked)
 		Input::centerMouse();
-
-	for (auto& node : node_list) {
+	if (node_list.size() - 1 < 2) {
+		for (auto& node : node_list) {
 		if (node->name != "Light") {
 			if(node->material->brightness != brightness) node->material->brightness = brightness;
 			if(node->material->ray_step != ray_step) node->material->ray_step = ray_step;
@@ -214,6 +215,7 @@ void Application::update(double seconds_elapsed)
 			node->model.setTranslation(light_position.x,light_position.y, light_position.z);
 		}
 
+	}
 	}
 	prev_volume = volume_selected;
 	prev_tf_texture = tf_selected;
@@ -296,7 +298,7 @@ void Application::renderInMenu() {
 		if(ImGui::Button("Add node")) {
 			string name = " New node ";
 			int size = (node_list.size() - 1);
-			name += size;
+			name += to_string(size);
 			SceneNode* volNode = new SceneNode(name.c_str());
 
 			// Create the volume
