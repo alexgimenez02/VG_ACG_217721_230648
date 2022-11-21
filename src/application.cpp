@@ -348,9 +348,11 @@ void Application::renderInMenu() {
 			volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
 			node_list.push_back(volNode); //Add the node to the list of nodes
 		}
-	if (ImGui::Button("Remove node")) {
-		node_list.pop_back();
-	}
+		if (node_list.size() > 2) {
+			if (ImGui::Button("Remove node")) {
+				node_list.pop_back();
+			}
+		}
 		ImGui::TreePop();
 	}
 
