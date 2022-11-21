@@ -47,6 +47,9 @@ public:
 	bool iso;
 	bool phong;
 	Plane pl;
+	bool jitter;
+	bool show_light;
+	float threshold;
 
 	Vector3 light_position;
 

@@ -40,22 +40,22 @@ uniform float u_light_intensity;
 uniform float u_threshold;
 
 
-
+//Part 2 Jittering pseudo-random
 float rand( vec2 co )
 {
 	return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
 void main() {
-	//1. Setup ray
-	// init variables to use in algorithm
+	//1. Setup ray (part 1)
+	// init variables to use in algorithm (part 1)
 	vec3 dir = normalize(v_position - (u_inverse_model * vec4(u_camera_position, 1.0)).xyz );
 	vec3 sample_pos = v_position;
 	vec4 final_color;
 	float d;
 	vec4 sample_color;
 	float offset;
-	//for loop
+	//Part 2 jittering
 	if(u_jitter){
 		if(u_method){
 			offset = rand(gl_FragCoord.xy);
@@ -65,7 +65,9 @@ void main() {
 		}
 		sample_pos += offset * dir * u_ray_step;
 	}
+	//for loop (part 1)
 	for (int i = 0; i < 10000; i++) {
+		//Part 2 volume clipping
 		if(u_vc){
 			float pl_eq = sample_pos.x * u_plane.x + sample_pos.y * u_plane.y + sample_pos.z * u_plane.z + u_plane.a;
 			if(pl_eq > 0){
@@ -80,24 +82,27 @@ void main() {
 				continue;
 			}
 		}
-		//2. Get information from 3D texture
+		//2. Get information from 3D texture (part 1)
 		d = texture(u_texture, (sample_pos + 1.0)/2.0).x;
-		//3. Obtain color from density obtained
+		//3. Obtain color from density obtained (part 1)
 		
+		//Part 2 Transfer function
 		if(u_tf){
 			if(d > u_tf_filter){
-				sample_color = texture(u_tf_texture, vec2(d,1.0));
-				sample_color.a *= d * 0.5;
+				sample_color = texture(u_tf_texture, vec2(d*1.5,1.0));
+				sample_color.a *= d * 2.0;
 			}
 		}
 		else{
-			sample_color = vec4(d, d, d, d);
+			sample_color = vec4(d, d, d, d); //Part 1
 		}
 		sample_color.rgb *= sample_color.a;
-		//4. Composition of final_color
+		//4. Composition of final_color (Part 1)
 
+		//Part 2 Isosurfaces
 		if(u_iso){
 			if(d > u_threshold){
+
 				vec3 L = u_local_light_position - sample_pos;
 				vec3 V = u_local_camera_position - sample_pos;
 
@@ -118,15 +123,15 @@ void main() {
 				break;
 			}
 		}else{
-			final_color += u_ray_step * (1.0 - final_color.a) * sample_color;
-			if(!u_tf){
-				final_color *= u_color;
+			final_color += u_ray_step * (1.0 - final_color.a) * sample_color; //Part 1
+			if(!u_tf){ //Part 2
+				final_color *= u_color; //Part 1
 			}
-			//5. Next Sample and Exit Conditions
 		}
-		sample_pos = sample_pos + dir*u_ray_step;
+		//5. Next Sample and Exit Conditions (Part 1)
+		sample_pos = sample_pos + dir*u_ray_step; //Part 1
 		
-		
+		//Part 1
 		if (sample_pos.x > 1.0 || sample_pos.y > 1.0 || sample_pos.z > 1.0 
 			|| sample_pos.x < -1.0 || sample_pos.y < -1.0 || sample_pos.z < -1.0) {
 			break;
@@ -136,9 +141,10 @@ void main() {
 		}
 		
 	}
-
+	//Part 1
 	if (final_color.a <= u_alpha_filter) {
 		discard;
 	}
+
 	gl_FragColor = final_color * u_brightness;
 }

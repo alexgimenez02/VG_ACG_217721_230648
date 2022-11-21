@@ -17,36 +17,9 @@
 bool render_wireframe = false;
 Camera* Application::camera = nullptr;
 Application* Application::instance = NULL;
-bool jitter = false;
-bool show_light = false;
 float threshold;
 
-Volume createVolume(const char* filename, const char* name=("Node")) {
-	SceneNode* volNode = new SceneNode(name);
-	Volume* volume = new Volume();
-	volNode->mesh = new Mesh();
-	volNode->mesh->createCube(); //Create the mesh
-	volume->loadPVM(filename); //Add the PVM/PNG/VL	
 
-	//Create texture
-	Texture* tex = new Texture();
-	tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE); //Create texture from volume
-
-	//Create material
-	StandardMaterial* stdMat = new StandardMaterial();
-	stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs"); //Add volume shader to the material
-	stdMat->texture = tex; //Add texture
-	stdMat->noise_texture = Texture::Get("data/images/blueNoise.PNG");
-	//Brightness and ray_step setup
-	{
-		stdMat->jitter = jitter;
-		stdMat->jitterMethodb = true;
-		stdMat->iso_threshold = threshold;
-	}
-	volNode->material = stdMat;
-	//Scale the model matrix so it fits the whole volume
-	volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
-}
 Application::Application(int window_width, int window_height, SDL_Window* window)
 {
 	this->window_width = window_width;
@@ -66,6 +39,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	elapsed_time = 0.0f;
 	mouse_locked = false;
 	tf = false;
+	vc = false;
 	iso = false;
 	// OpenGL flags
 	glEnable( GL_CULL_FACE ); //render both sides of every triangle
@@ -320,47 +294,51 @@ void Application::renderInMenu() {
 
 	if (ImGui::TreeNode("Scene")) {
 		if(ImGui::Button("Add node")) {
-		SceneNode* volNode = new SceneNode("Volume node");
+			string name = " New node ";
+			int size = (node_list.size() - 1);
+			name += size;
+			SceneNode* volNode = new SceneNode(name.c_str());
 
-		// Create the volume
-		Volume* volume = new Volume();
-		volNode->mesh = new Mesh();
-		volNode->mesh->createCube(); //Create the mesh
-		volume->loadPVM("data/volumes/CT-Abdomen.pvm"); //Add the PVM/PNG/VL	
+			// Create the volume
+			Volume* volume = new Volume();
+			volNode->mesh = new Mesh();
+			volNode->mesh->createCube(); //Create the mesh
+			volNode->model = Matrix44();
+			volume->loadPVM("data/volumes/CT-Abdomen.pvm"); //Add the PVM/PNG/VL	
 
-		//Create texture
-		Texture* tex = new Texture();
-		tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE); //Create texture from volume
+			//Create texture
+			Texture* tex = new Texture();
+			tex->create3DFromVolume(volume, GL_CLAMP_TO_EDGE); //Create texture from volume
 
-		//Create material
-		StandardMaterial* stdMat = new StandardMaterial();
-		stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs"); //Add volume shader to the material
-		stdMat->texture = tex; //Add texture
-		stdMat->noise_texture = Texture::Get("data/images/blueNoise.PNG");
-		//Brightness and ray_step setup
-		{
-			stdMat->brightness = brightness;
-			stdMat->ray_step = ray_step;
-			stdMat->alpha_filter = alpha_filter;
-			stdMat->jitter = jitter;
-			stdMat->method = method;
-			stdMat->jitterMethodb = true;
-			stdMat->tf = tf;
-			stdMat->tf_texture = Texture::Get("data/images/tf1.png");
-			stdMat->tf_filter = tf_filter;
-			stdMat->iso = iso;
-			stdMat->h_value = h_value;
-			stdMat->light_position = light_position;
-			stdMat->light_intensity = light_intensity;
-			stdMat->iso_threshold = threshold;
+			//Create material
+			StandardMaterial* stdMat = new StandardMaterial();
+			stdMat->shader = Shader::Get("data/shaders/basic.vs", "data/shaders/volshader.fs"); //Add volume shader to the material
+			stdMat->texture = tex; //Add texture
+			stdMat->noise_texture = Texture::Get("data/images/blueNoise.PNG");
+			//Brightness and ray_step setup
+			{
+				stdMat->brightness = brightness;
+				stdMat->ray_step = ray_step;
+				stdMat->alpha_filter = alpha_filter;
+				stdMat->jitter = jitter;
+				stdMat->method = method;
+				stdMat->jitterMethodb = true;
+				stdMat->tf = tf;
+				stdMat->tf_texture = Texture::Get("data/images/tf1.png");
+				stdMat->tf_filter = tf_filter;
+				stdMat->iso = iso;
+				stdMat->h_value = h_value;
+				stdMat->light_position = light_position;
+				stdMat->light_intensity = light_intensity;
+				stdMat->iso_threshold = threshold;
+			}
+			//Add material to the volume node
+			volNode->material = stdMat;
+			//Scale the model matrix so it fits the whole volume
+			volNode->model.translate(5 * (node_list.size() - 1), 0.0, 0.0);
+			volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
+			node_list.push_back(volNode); //Add the node to the list of nodes
 		}
-		//Add material to the volume node
-		volNode->material = stdMat;
-		//Scale the model matrix so it fits the whole volume
-		volNode->model.translate(5 * (node_list.size() - 1), 0.0, 0.0);
-		volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
-		node_list.push_back(volNode); //Add the node to the list of nodes
-	}
 	if (ImGui::Button("Remove node")) {
 		node_list.pop_back();
 	}
@@ -393,68 +371,62 @@ void Application::renderInMenu() {
 
 	//ImGUI Sliders and selectors
 	//Added
+	if (node_list.size() - 1 < 2)
 	{ //Part 1
 		ImGui::SliderFloat("Brightness", &brightness, 0.0f, 15.0f);
 		ImGui::SliderFloat("Step vector", &ray_step, 0.001f, 1.00f);
 		ImGui::SliderFloat("Alpha filter", &alpha_filter, 0.01f, 0.1f);
 
-		if(node_list.size() - 1 < 2){
-			bool changed = false;
-			changed |= ImGui::Combo("Volume", (int*)&volume_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0FOOT\0TEAPOT");
-		}
-	}
-	//Part 2
-	if(ImGui::TreeNode("Jittering")) { 
+		bool changed = false;
+		changed |= ImGui::Combo("Volume", (int*)&volume_selected, "CT-ABDOMEN\0DAISY\0ORANGE\0BONSAI\0FOOT\0TEAPOT");
 
-		ImGui::Checkbox("Activate", (bool*) & jitter);
-		ImGui::Combo("Method", (int*)&method, "Blue Noise Texture\0Pseudorandom-looking\0");
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Transfer Function")) {
-		ImGui::Checkbox("Activate", (bool*)&tf);
-		ImGui::Combo("Texture", (int*)&tf_selected, "TF1\0TF2\0TF3\0TF4\0");
-		ImGui::SliderFloat("Filter", (float*)&tf_filter, 0.01, 1.0);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Volume clipping")) {
-		ImGui::Checkbox("Activate", (bool*)&vc);
-		float planeVector[4];
-		planeVector[0] = pl.a;
-		planeVector[1] = pl.b;
-		planeVector[2] = pl.c;
-		planeVector[3] = pl.d;
-		ImGui::SliderFloat4("Plane values", planeVector, -5.0, 5.0);
-		pl = { planeVector[0] , planeVector[1] , planeVector[2]  , planeVector[3] };
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Isosurfaces")) {
-		ImGui::Checkbox("Activate", (bool*)&iso);
-		ImGui::SliderFloat("Threshold", (float*)&threshold, 0.01, 0.99f);
-		ImGui::SliderFloat("H value", (float*)&h_value, 0.005, 0.1);
-		if (ImGui::TreeNode("Light values")) {
-			ImGui::Checkbox("Show", (bool*)&show_light);
-			float lightPos[3];
-			lightPos[0] = light_position.x;
-			lightPos[1] = light_position.y;
-			lightPos[2] = light_position.z;
-			ImGui::DragFloat3("Position", lightPos, 0.05f);
-			light_position = Vector3(lightPos[0], lightPos[1], lightPos[2]);
-			ImGui::SliderFloat("Light intensity", (float*)&light_intensity,0.1,2.5);
+
+		//Part 2
+		if (ImGui::TreeNode("Jittering")) {
+
+			ImGui::Checkbox("Activate", (bool*)&jitter);
+			ImGui::Combo("Method", (int*)&method, "Blue Noise Texture\0Pseudorandom-looking\0");
 			ImGui::TreePop();
 		}
-		ImGui::TreePop();
+		if (ImGui::TreeNode("Transfer Function")) {
+			ImGui::Checkbox("Activate", (bool*)&tf);
+			ImGui::Combo("Texture", (int*)&tf_selected, "TF1\0TF2\0TF3\0TF4\0");
+			ImGui::SliderFloat("Filter", (float*)&tf_filter, 0.01, 1.0);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Volume clipping")) {
+			ImGui::Checkbox("Activate", (bool*)&vc);
+			float planeVector[4];
+			planeVector[0] = pl.a;
+			planeVector[1] = pl.b;
+			planeVector[2] = pl.c;
+			planeVector[3] = pl.d;
+			ImGui::SliderFloat4("Plane values", planeVector, -5.0, 5.0);
+			pl = { planeVector[0] , planeVector[1] , planeVector[2]  , planeVector[3] };
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Isosurfaces")) {
+			ImGui::Checkbox("Activate", (bool*)&iso);
+			ImGui::SliderFloat("Threshold", (float*)&threshold, 0.01, 0.99f);
+			ImGui::SliderFloat("H value", (float*)&h_value, 0.005, 0.1);
+			if (ImGui::TreeNode("Light values")) {
+				ImGui::Checkbox("Show", (bool*)&show_light);
+				float lightPos[3];
+				lightPos[0] = light_position.x;
+				lightPos[1] = light_position.y;
+				lightPos[2] = light_position.z;
+				ImGui::DragFloat3("Position", lightPos, 0.05f);
+				light_position = Vector3(lightPos[0], lightPos[1], lightPos[2]);
+				ImGui::SliderFloat("Light intensity", (float*)&light_intensity, 0.1, 2.5);
+				ImGui::TreePop();
+			}
+			ImGui::TreePop();
+		}
 	}
-
 
 	if (ImGui::TreeNode("Debug options")) {
 		ImGui::Checkbox("Render debug", &render_debug);
 		ImGui::Checkbox("Wireframe", &render_wireframe);
-		if (ImGui::Button("Print fs shader")) {
-			for each (auto & node in node_list)
-			{
-				cout << node->material->shader->getPixelShaderName() << endl;
-			}
-		}
 		if (ImGui::Button("Print plane")) {
 			cout << "Plane: " << pl.a << "x + " << pl.b << "y + " << pl.c << "z + " << pl.d << endl;
 		}
