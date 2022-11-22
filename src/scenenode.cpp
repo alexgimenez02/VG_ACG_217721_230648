@@ -80,40 +80,44 @@ void SceneNode::renderInMenu()
 
 			
 			//Part 2
-			if (ImGui::TreeNode("Jittering")) {
+			if (!mat->iso) {
+				if (ImGui::TreeNode("Jittering")) {
 
-				ImGui::Checkbox("Activate", &mat->jitter);
-				ImGui::Combo("Method", &mat->method, "Blue Noise Texture\0Pseudorandom-looking\0");
-				ImGui::TreePop();
-			}
-			if (ImGui::TreeNode("Transfer Function")) {
-				ImGui::Checkbox("Activate", &mat->tf);
-				bool change = false;
-				change |= ImGui::Combo("Texture", (int*) & tf_selected, "TF1\0TF2\0TF3\0TF4\0");
-				if (change) {
-					
-					mat->swapTF(tf_selected);
+					ImGui::Checkbox("Activate", &mat->jitter);
+					ImGui::Combo("Method", &mat->method, "Blue Noise Texture\0Pseudorandom-looking\0");
+					ImGui::TreePop();
 				}
-				ImGui::SliderFloat("Filter", &mat->tf_filter, 0.01, 1.0);
-				ImGui::TreePop();
+				if (ImGui::TreeNode("Transfer Function")) {
+					ImGui::Checkbox("Activate", &mat->tf);
+					bool change = false;
+					change |= ImGui::Combo("Texture", (int*) & tf_selected, "TF1\0TF2\0TF3\0TF4\0");
+					if (change) {
+					
+						mat->swapTF(tf_selected);
+					}
+					ImGui::SliderFloat("Filter", &mat->tf_filter, 0.01, 1.0);
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Volume clipping")) {
+					ImGui::Checkbox("Activate", &mat->vc);
+					float planeVector[4];
+					planeVector[0] = mat->plane.a;
+					planeVector[1] = mat->plane.b;
+					planeVector[2] = mat->plane.c;
+					planeVector[3] = mat->plane.d;
+					ImGui::SliderFloat4("Plane values", planeVector, -5.0, 5.0);
+					mat->plane = { planeVector[0] , planeVector[1] , planeVector[2]  , planeVector[3] };
+					ImGui::TreePop();
+				}
 			}
-			if (ImGui::TreeNode("Volume clipping")) {
-				ImGui::Checkbox("Activate", &mat->vc);
-				float planeVector[4];
-				planeVector[0] = mat->plane.a;
-				planeVector[1] = mat->plane.b;
-				planeVector[2] = mat->plane.c;
-				planeVector[3] = mat->plane.d;
-				ImGui::SliderFloat4("Plane values", planeVector, -5.0, 5.0);
-				mat->plane = { planeVector[0] , planeVector[1] , planeVector[2]  , planeVector[3] };
-				ImGui::TreePop();
-			}
-			if (ImGui::TreeNode("Isosurfaces")) {
-				ImGui::Checkbox("Activate", &mat->iso);
-				ImGui::SliderFloat("Threshold", &mat->iso_threshold, 0.01, 0.99f);
-				ImGui::SliderFloat("H value", &mat->h_value, 0.005, 0.1);
-				material = mat;
-				ImGui::TreePop();
+			if (!mat->jitter && !mat->vc && !mat->tf) {
+				if (ImGui::TreeNode("Isosurfaces")) {
+					ImGui::Checkbox("Activate", &mat->iso);
+					ImGui::SliderFloat("Threshold", &mat->iso_threshold, 0.01, 0.99f);
+					ImGui::SliderFloat("H value", &mat->h_value, 0.005, 0.1);
+					material = mat;
+					ImGui::TreePop();
+				}
 			}
 			ImGui::TreePop();
 		}

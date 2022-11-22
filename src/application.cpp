@@ -344,8 +344,8 @@ void Application::renderInMenu() {
 			//Add material to the volume node
 			volNode->material = stdMat;
 			//Scale the model matrix so it fits the whole volume
-			volNode->model.translate(5 * (node_list.size() - 1), 0.0, 0.0);
 			volNode->model.setScale(1, (volume->height * volume->heightSpacing) / (volume->width * volume->widthSpacing), (volume->depth * volume->depthSpacing) / (volume->width * volume->widthSpacing));
+			volNode->model.translate(5 * (node_list.size() - 1), 0.0, 0.0);
 			node_list.push_back(volNode); //Add the node to the list of nodes
 		}
 		if (node_list.size() > 2) {
@@ -394,45 +394,49 @@ void Application::renderInMenu() {
 
 
 		//Part 2
-		if (ImGui::TreeNode("Jittering")) {
+		if (!iso) {
+			if (ImGui::TreeNode("Jittering")) {
 
-			ImGui::Checkbox("Activate", (bool*)&jitter);
-			ImGui::Combo("Method", (int*)&method, "Blue Noise Texture\0Pseudorandom-looking\0");
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Transfer Function")) {
-			ImGui::Checkbox("Activate", (bool*)&tf);
-			ImGui::Combo("Texture", (int*)&tf_selected, "TF1\0TF2\0TF3\0TF4\0");
-			ImGui::SliderFloat("Filter", (float*)&tf_filter, 0.01, 1.0);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Volume clipping")) {
-			ImGui::Checkbox("Activate", (bool*)&vc);
-			float planeVector[4];
-			planeVector[0] = pl.a;
-			planeVector[1] = pl.b;
-			planeVector[2] = pl.c;
-			planeVector[3] = pl.d;
-			ImGui::SliderFloat4("Plane values", planeVector, -5.0, 5.0);
-			pl = { planeVector[0] , planeVector[1] , planeVector[2]  , planeVector[3] };
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Isosurfaces")) {
-			ImGui::Checkbox("Activate", (bool*)&iso);
-			ImGui::SliderFloat("Threshold", (float*)&threshold, 0.01, 0.99f);
-			ImGui::SliderFloat("H value", (float*)&h_value, 0.005, 0.1);
-			if (ImGui::TreeNode("Light values")) {
-				ImGui::Checkbox("Show", (bool*)&show_light);
-				float lightPos[3];
-				lightPos[0] = light_position.x;
-				lightPos[1] = light_position.y;
-				lightPos[2] = light_position.z;
-				ImGui::DragFloat3("Position", lightPos, 0.05f);
-				light_position = Vector3(lightPos[0], lightPos[1], lightPos[2]);
-				ImGui::SliderFloat("Light intensity", (float*)&light_intensity, 0.1, 2.5);
+				ImGui::Checkbox("Activate", (bool*)&jitter);
+				ImGui::Combo("Method", (int*)&method, "Blue Noise Texture\0Pseudorandom-looking\0");
 				ImGui::TreePop();
 			}
-			ImGui::TreePop();
+			if (ImGui::TreeNode("Transfer Function")) {
+				ImGui::Checkbox("Activate", (bool*)&tf);
+				ImGui::Combo("Texture", (int*)&tf_selected, "TF1\0TF2\0TF3\0TF4\0");
+				ImGui::SliderFloat("Filter", (float*)&tf_filter, 0.01, 1.0);
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("Volume clipping")) {
+				ImGui::Checkbox("Activate", (bool*)&vc);
+				float planeVector[4];
+				planeVector[0] = pl.a;
+				planeVector[1] = pl.b;
+				planeVector[2] = pl.c;
+				planeVector[3] = pl.d;
+				ImGui::SliderFloat4("Plane values", planeVector, -5.0, 5.0);
+				pl = { planeVector[0] , planeVector[1] , planeVector[2]  , planeVector[3] };
+				ImGui::TreePop();
+			}
+		}
+		if (!jitter && !vc && !tf) {
+			if (ImGui::TreeNode("Isosurfaces")) {
+				ImGui::Checkbox("Activate", (bool*)&iso);
+				ImGui::SliderFloat("Threshold", (float*)&threshold, 0.01, 0.99f);
+				ImGui::SliderFloat("H value", (float*)&h_value, 0.005, 0.1);
+				if (ImGui::TreeNode("Light values")) {
+					ImGui::Checkbox("Show", (bool*)&show_light);
+					float lightPos[3];
+					lightPos[0] = light_position.x;
+					lightPos[1] = light_position.y;
+					lightPos[2] = light_position.z;
+					ImGui::DragFloat3("Position", lightPos, 0.05f);
+					light_position = Vector3(lightPos[0], lightPos[1], lightPos[2]);
+					ImGui::SliderFloat("Light intensity", (float*)&light_intensity, 0.1, 2.5);
+					ImGui::TreePop();
+				}
+				ImGui::TreePop();
+			}
 		}
 	}
 	else {
